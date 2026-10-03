@@ -1,0 +1,12 @@
+linters: linters_with_defaults(
+    line_length_linter(120L),
+    object_name_linter = NULL,
+    commented_code_linter = NULL,
+    # The package is split across several files, so every function references
+    # helpers and constants defined in sibling files. These cross-file
+    # references resolve inside the loaded package namespace (R CMD check
+    # confirms this), but a file-by-file linter reports them as undefined, so
+    # object_usage_linter is disabled.
+    object_usage_linter = NULL
+  )
+encoding: "UTF-8"

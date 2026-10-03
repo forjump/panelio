@@ -1,0 +1,8 @@
+^\.gitignore$
+^\.lintr$
+^\.Rproj\.user$
+^.*\.Rproj$
+^.*\.txt$
+^renv$
+^_problems$
+^benchmark$

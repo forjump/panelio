@@ -1,0 +1,54 @@
+# ---- R session artifacts -----------------------------------------------------
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# ---- renv --------------------------------------------------------------------
+renv/
+
+# ---- build / check artifacts -------------------------------------------------
+*.tar.gz
+!data/*.tar.gz
+.Rcheck/
+*.Rcheck/
+*.Rout
+*.Rout.fail
+src/*.o
+src/*.so
+src/*.dll
+
+# ---- generated output --------------------------------------------------------
+output/
+
+# ---- editor / os -------------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+
+# ---- large simulation binaries / intermediate results ----
+benchmark/*.rds
+benchmark/results/*_perfeature.csv
+
+# ---- raw downloaded data (re-downloadable; provenance in real_data/README.md) ----
+benchmark/real_data/*
+!benchmark/real_data/README.md
+!benchmark/real_data/panel_long*.csv
+!benchmark/real_data/panel_subject_meta*.csv
+!benchmark/real_data/*_panel*.csv
+!benchmark/real_data/*_subject_meta*.csv
+
+# ---- LaTeX / tex build intermediates ----
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.nav
+*.snm
+*.vrb
+*.synctex.gz
+*.bak_structure

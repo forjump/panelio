@@ -1,0 +1,22 @@
+Package: panelio
+Type: Package
+Title: Microbiome Balanced Longitudinal Panel I/O
+Version: 0.1.0
+Authors@R: person("panelio", "authors", role = c("aut", "cre"),
+    email = "panelio@example.com")
+Description: Archive, read, write and convert balanced longitudinal microbiome
+    abundance panels. A dataset is stored as a gzipped tar archive holding one
+    wide table per time layer plus a machine parsable manifest that carries the
+    observation and time metadata. The package provides a lossless read/write
+    round trip and a bidirectional contract between the long table
+    representation and the three dimensional array representation.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports: utils, stats
+Suggests: testthat (>= 3.0.0), pkgload, roxygen2
+NeedsCompilation: yes
+SystemRequirements: GNU Fortran (gfortran) compiler
+Config/testthat/edition: 3
+Language: zh-CN
+Config/roxygen2/version: 8.0.0
