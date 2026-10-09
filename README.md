@@ -4,7 +4,7 @@ balanced longitudinal panel 数据的归档、读写与对象转换 R 模块。
 
 一个 dataset 被封装为一个 `tar.gz` 归档：内部按时间层存放多张宽表，外加一份机器可解析的 `manifest.txt` 承载全部观测元信息与时间层元信息。模块提供无损的读写闭环，以及 long_table 与 3D array 两种表示之间的双向等价契约。
 
-**设计约束**：全部读/写/转换/预处理/因果路径为**向量化**实现，源码不含任何 `for` / `while` 原生循环；时序平滑与因果估计的迭代全部下沉到 `src/panelio_smoothing.f90` / `src/panelio_causal.f90` 的 Fortran 内核，R 层每个方法只做一次 `.Fortran` 派发，同样无 R 层循环；运行时**只依赖 base R**（`utils`、`stats`），除 C++/Fortran 外不引入多余依赖；所有可调参数集中为 `R/constants.R` 中的**命名常量**，无魔数、无硬编码路径、无外部配置与 bash 启动。
+**设计约束**：全部读/写/转换/预处理/因果路径为**向量化**实现，源码不含任何 `for` / `while` 原生循环；时序平滑与因果估计的迭代全部下沉到 `src/panelio_smoothing.f90` / `src/panelio_causal.f90` 的 Fortran 内核，R 层每个方法只做一次 `.Fortran` 派发，同样无 R 层循环；运行时**只依赖 base R**（`utils`、`stats`），除 C++/Fortran 外不引入多余依赖。
 
 ## 环境要求
 
@@ -27,8 +27,8 @@ R CMD INSTALL .
 ```text
 project_root/
 ├── R/
-│   ├── constants.R          # 全部命名常量（无魔数），无外部配置
-│   ├── utils_panel.R        # 内部校验、manifest 文法、结构转换（不导出）
+│   ├── constants.R          # 全部命名常量
+│   ├── utils_panel.R        # 内部校验、manifest 文法、结构转换
 │   ├── convert_panel.R      # as_panel_array / as_panel_table / as_*_meta
 │   ├── read_panel.R         # read_panel_table
 │   ├── write_panel.R        # write_panel_archive / write_manifest
@@ -40,12 +40,11 @@ project_root/
 │   ├── panelio_smoothing.f90   # 平滑 Fortran 内核（kalman/locreg/ewma/spline）
 │   ├── panelio_causal.f90      # 因果 Fortran 内核（demean2 / nnls_solve / scm_effects）
 │   └── init.c                  # .Fortran 例程注册表
-├── man/                     # roxygen2 自动生成的英文函数文档
-├── tests/
+├── man/           
 │   ├── testthat.R
 │   └── testthat/            # 单元测试：读写闭环 + 边界校验
 ├── DESCRIPTION
-├── NAMESPACE                # roxygen2 自动生成
+├── NAMESPACE                
 └── README.md
 ```
 
@@ -222,8 +221,6 @@ panel_array (S3 class)
 
 ## 无魔数与向量化
 
-- 所有可调数值、前缀、分隔符等集中为 `R/constants.R` 中的命名常量（`MAX_LABEL_GROUP_COUNT`、`COMPOSITION_TOLERANCE`、`CSV_WRITE_DIGITS`、`TIME_IDENTIFIER_DIGITS` 等），源码中无未命名魔数、无外部配置文件、无 yaml 依赖。
-- 读/写/转换/预处理路径全部向量化：`lapply` / `Map` / `vapply` / `aperm` / `rep` / `as.vector` / `t` / 命名派发表，不含 `for` / `while` 原生循环。
 - 时序平滑的迭代（时间轴逐点滤波、局部加权、带状 Cholesky 等）全部在 `src/panelio_smoothing.f90` 内完成，R 层每个方法只做一次 `.Fortran` 派发；无 R 层循环、无 `switch` 分支（用命名派发表 `smoothing_handlers[[method]]`）。
 - 平滑方法逐一与 R 参考实现对照验证：`ekf` / `rts` / `ewma` / `gaussian` / `moving_average` / `savgol` / `loess` / `spline` 最大误差 ≤ 6e-15；断点保留阶跃验证通过（带断点跳跃 1.709 vs 无断点被抹到 1.057）。
 - 因果估计逐一与独立参考对照：`did` vs 闭式解（误差 0）、`pooled_ols` / `event_study` vs `lm` 双向固定效应（≤1e-6）、`scm`（nnls）权重用 **KKT 最优性**校验、`scm`（simplex 精确凸）权重 Σw=1 且活动集梯度 spread=0（严格最优），并验证多次调用完全确定。placebo / bootstrap / pre_fit 三个推断层均已向量化实现并通过功能验证。真实 A6 基准（40×50×9）四方法冒烟通过。
